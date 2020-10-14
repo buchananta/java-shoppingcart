@@ -8,7 +8,7 @@ public interface RolesService
 {
     List<Roles> findAll();
 
-//    Roles findRoleById(long id);
+    Roles findRoleById(long id);
 
     Roles save(Roles role);
 

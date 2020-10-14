@@ -33,6 +33,13 @@ public class RolesServiceImpl implements RolesService
         return list;
     }
 
+    @Override
+    public Roles findRoleById(long id)
+    {
+        return rolerepos.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Role id " + id + " not found!"));
+    }
+
     @Transactional
     @Override
     public Roles save(Roles role)

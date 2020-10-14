@@ -24,7 +24,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter
     public void configure(HttpSecurity http) throws Exception
     {
         http.authorizeRequests()
-                .antMatchers("/",
+                .antMatchers( "/",
+                        "/login",
                         "/h2-console/**",
                     "/swagger-resources/**",
                     "/swagger-resource/**",

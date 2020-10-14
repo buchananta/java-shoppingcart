@@ -2,7 +2,9 @@ package com.lambdaschool.shoppingcart.services;
 
 import com.lambdaschool.shoppingcart.exceptions.ResourceFoundException;
 import com.lambdaschool.shoppingcart.exceptions.ResourceNotFoundException;
+import com.lambdaschool.shoppingcart.models.Roles;
 import com.lambdaschool.shoppingcart.models.User;
+import com.lambdaschool.shoppingcart.models.UserRoles;
 import com.lambdaschool.shoppingcart.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,9 @@ public class UserServiceImpl
     @Autowired
     private CartService cartService;
 
+    @Autowired
+    private RolesService roleService;
+
     @Override
     public List<User> findAll()
     {
@@ -46,6 +51,17 @@ public class UserServiceImpl
                 .orElseThrow(() -> new ResourceNotFoundException("User id " + id + " not found!"));
     }
 
+    @Override
+    public User findUserByName(String name)
+    {
+        User user = userrepos.findByUsername(name.toLowerCase());
+        if (user == null)
+        {
+            throw new ResourceNotFoundException("User name " + name + " not found!");
+        }
+        return user;
+    }
+
     @Transactional
     @Override
     public void delete(long id)
@@ -61,14 +77,28 @@ public class UserServiceImpl
     {
         User newUser = new User();
 
-        newUser.setUsername(user.getUsername());
-        newUser.setComments(user.getComments());
-
-        if (user.getCarts()
-                .size() > 0)
+        if (user.getUserid() != 0)
         {
-            throw new ResourceFoundException("Carts are not added through users");
+            userrepos.findById(user.getUserid())
+                    .orElseThrow(() -> new ResourceNotFoundException("User id " + user.getUserid() + " not found!"));
+            newUser.setUserid(user.getUserid());
         }
+
+        newUser.setUsername(user.getUsername()
+                .toLowerCase());
+        newUser.setPasswordNoEncrypt(user.getPassword());
+
+        newUser.getRoles()
+                .clear();
+        for (UserRoles ur : user.getRoles())
+        {
+            Roles addRole = roleService.findRoleById(ur.getRole()
+                    .getRoleid());
+            newUser.getRoles()
+                    .add(new UserRoles(newUser, addRole));
+        }
+
         return userrepos.save(newUser);
     }
+
 }

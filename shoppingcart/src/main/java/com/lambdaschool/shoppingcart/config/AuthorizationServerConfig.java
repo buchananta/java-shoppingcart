@@ -6,7 +6,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
-import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerEndpointsConfiguration;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -20,6 +19,10 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     static final String GRANT_TYPE_PASSWORD = "password";
     static final String AUTHORIZATION_CODE = "authorization_code";
+
+    static final String SCOPE_READ = "read";
+    static final String SCOPE_WRITE = "write";
+    static final String SCOPE_TRUST = "trust";
 
     static final int ACCESS_TOKEN_VALIDITY_SECONDS = -1;
 
@@ -39,6 +42,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .withClient(CLIENT_ID)
                 .secret(encoder.encode(CLIENT_SECRET))
                 .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE)
+                .scopes(SCOPE_READ, SCOPE_WRITE, SCOPE_TRUST)
                 .accessTokenValiditySeconds(ACCESS_TOKEN_VALIDITY_SECONDS);
     }
 
@@ -47,6 +51,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     {
         endpoints.tokenStore(tokenStore)
                 .authenticationManager(authenticationManager);
-        endpoints.pathMapping("oauth/token", "/login");
+        endpoints.pathMapping("/oauth/token", "/login");
     }
 }

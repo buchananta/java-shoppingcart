@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "roles")
-public class Roles
+public class Roles extends Auditable
 {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
