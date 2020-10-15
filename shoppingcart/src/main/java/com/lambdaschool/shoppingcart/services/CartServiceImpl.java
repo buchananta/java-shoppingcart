@@ -9,9 +9,10 @@ import com.lambdaschool.shoppingcart.repositories.CartRepository;
 import com.lambdaschool.shoppingcart.repositories.ProductRepository;
 import com.lambdaschool.shoppingcart.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.lambdaschool.shoppingcart.handlers.HelperFunctions;
 import java.util.List;
 
 @Transactional
@@ -36,12 +37,14 @@ public class CartServiceImpl
      */
     @Autowired
     private ProductRepository productrepos;
-
     /**
      * Connects this service to the auditing service in order to get current user name
      */
     @Autowired
     private UserAuditing userAuditing;
+
+    @Autowired
+    private HelperFunctions helperFunctions;
 
     @Override
     public List<Cart> findAllByUserId(Long userid)
