@@ -4,9 +4,12 @@ import com.lambdaschool.shoppingcart.models.Cart;
 import com.lambdaschool.shoppingcart.models.Product;
 import com.lambdaschool.shoppingcart.models.User;
 import com.lambdaschool.shoppingcart.services.CartService;
+import com.lambdaschool.shoppingcart.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,13 +27,19 @@ public class CartController
     @Autowired
     private CartService cartService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping(value = "/user", produces = {"application/json"})
-    public ResponseEntity<?> listAllCarts(@PathVariable long userid)
+    public ResponseEntity<?> listAllCarts()
     {
-        List<Cart> myCarts = cartService.findAllByUserId(userid);
+        String uname = SecurityContextHolder.getContext().getAuthentication().getName();
+        User u = userService.findUserByName(uname);
+        List<Cart> myCarts = cartService.findAllByUserId(u.getUserid());
         return new ResponseEntity<>(myCarts, HttpStatus.OK);
     }
 
+    @PreAuthorize(value = "hasAnyRole('ADMIN')")
     @GetMapping(value = "/cart/{cartId}",
             produces = {"application/json"})
     public ResponseEntity<?> getCartById(
@@ -42,20 +51,20 @@ public class CartController
                                     HttpStatus.OK);
     }
 
-    @PostMapping(value = "/create/user/{userid}/product/{productid}")
-    public ResponseEntity<?> addNewCart(@PathVariable long userid,
-                                        @PathVariable long productid)
+    @PostMapping(value = "/create/product/{productid}")
+    public ResponseEntity<?> addNewCart(@PathVariable long productid)
     {
-        User dataUser = new User();
-        dataUser.setUserid(userid);
+        String uname = SecurityContextHolder.getContext().getAuthentication().getName();
+        User u = userService.findUserByName(uname);
 
         Product dataProduct = new Product();
         dataProduct.setProductid(productid);
 
-        cartService.save(dataUser, dataProduct);
+        cartService.save(u, dataProduct);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @PreAuthorize(value = "hasAnyRole('ADMIN')")
     @PutMapping(value = "/update/cart/{cartid}/product/{productid}")
     public ResponseEntity<?> updateCart(@PathVariable long cartid,
                                         @PathVariable long productid)
